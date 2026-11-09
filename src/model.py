@@ -23,3 +23,9 @@ class TodoList:
 
     def set_done(self, task: Task, done: bool) -> None:
         task.done = done
+
+    def delete(self, task: Task) -> None:
+        for index, existing in enumerate(self.tasks):
+            if existing is task:
+                del self.tasks[index]
+                return

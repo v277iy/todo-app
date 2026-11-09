@@ -25,5 +25,8 @@ class TodoController:
     def add(self, text: str) -> bool:
         return self.model.add(text) is not None
 
+    def delete(self, key: int) -> None:
+        self.model.delete(self._find(key))
+
     def set_done(self, key: int, done: bool) -> None:
         self.model.set_done(self._find(key), done)

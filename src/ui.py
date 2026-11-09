@@ -26,6 +26,19 @@ class TodoApp(tk.Frame):
         self.small_font = font.Font(family=family, size=11)
         self.labels = []
 
+        # Self-drawn trashcan icon to not depend on support from the Font
+        self.trash_icon = tk.PhotoImage(master=self, width=24, height=24)
+        for rectangle in (
+            (9, 3, 15, 5),   # handle
+            (4, 6, 20, 8),   # lid
+            (6, 9, 8, 21),   # sides and base
+            (16, 9, 18, 21),
+            (6, 20, 18, 22),
+            (10, 10, 11, 18),
+            (13, 10, 14, 18),
+        ):
+            self.trash_icon.put(MUTED, to=rectangle)
+
         style = ttk.Style(root)
         style.theme_use("clam")
         style.configure("Task.TCheckbutton", background=CARD, padding=3,
@@ -139,6 +152,18 @@ class TodoApp(tk.Frame):
             self.commands.set_done(task.key, checked.get())
             self.render_tasks()
 
+        def delete_task() -> None:
+            self.commands.delete(task.key)
+            self.render_tasks()
+            self.entry.focus_set()
+
+        tk.Button(row, image=self.trash_icon, command=delete_task,
+                  font=self.body_font, bg=CARD, fg=MUTED,
+                  activebackground=CARD, activeforeground=INK,
+                  relief="flat", bd=0, cursor="hand2",
+                  highlightthickness=1, highlightbackground=CARD,
+                  highlightcolor=ACCENT, padx=6).pack(
+                      side="right", anchor="n", padx=(10, 0))
         ttk.Checkbutton(row, variable=checked, command=set_done,
                         style="Task.TCheckbutton", cursor="hand2").pack(
                             side="left", anchor="n", padx=(0, 10), pady=2)
