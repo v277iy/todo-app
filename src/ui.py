@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import font, ttk
+from tkinter import font, messagebox, ttk
 
 from presentation import TaskView, TodoActions
 
@@ -55,6 +55,10 @@ class TodoApp(tk.Frame):
         tk.Label(self, text="Todo-App", bg=BG, fg=INK,
                  font=(family, 32, "bold")).grid(row=0, column=0, sticky="w")
 
+        tk.Button(self, text="Save", command=self.save,
+                  font=self.small_font, bg=CARD, fg=INK,
+                  relief="flat", padx=16, pady=6, cursor="hand2").grid(
+                      row=1, column=0, sticky="e", pady=(8, 16))
         composer = tk.Frame(self, bg=BG)
         composer.grid(row=2, column=0, sticky="ew", pady=(0, 28))
         composer.columnconfigure(0, weight=1)
@@ -103,6 +107,12 @@ class TodoApp(tk.Frame):
         root.bind("<Button-5>", self.scroll)
         self.entry.focus_set()
         self.render_tasks()
+
+    def save(self) -> None:
+        try:
+            self.commands.save()
+        except (OSError, ValueError) as error:
+            messagebox.showerror("Could not save tasks", str(error), parent=self)
 
     def update_scrollbar(self, first: str, last: str) -> None:
         self.scrollbar.set(first, last)
