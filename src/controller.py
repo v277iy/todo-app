@@ -1,10 +1,20 @@
 from model import Task, TodoList
 from presentation import TaskView
+from storage import TodoStorage
 
 
 class TodoController:
-    def __init__(self, model: TodoList) -> None:
+    def __init__(self, model: TodoList, storage: TodoStorage | None = None) -> None:
         self.model = model
+        self.storage = TodoStorage() if storage is None else storage
+
+    def load(self) -> None:
+        self.model.tasks = self.storage.load()
+
+    def save(self) -> None:
+        if not self.model.tasks:
+            return
+        self.storage.save(self.model.tasks)
 
     def _find(self, key: int) -> Task:
         def walk(tasks: list[Task]):
