@@ -23,7 +23,7 @@ class TodoController:
             return TaskView(
                 key=id(task),
                 text=task.text,
-                done=task.done,
+                done=self.model.is_done(task),
                 children=tuple(snapshot(child) for child in task.children),
             )
 

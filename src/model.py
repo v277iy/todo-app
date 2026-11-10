@@ -26,6 +26,20 @@ class TodoList:
     def set_done(self, task: Task, done: bool) -> None:
         task.done = done
 
+    def is_done(self, task: Task) -> bool:
+        """Completion includes ancestors without changing a task's own state."""
+        def find(tasks: list[Task], inherited: bool) -> bool | None:
+            for existing in tasks:
+                done = inherited or existing.done
+                if existing is task:
+                    return done
+                result = find(existing.children, done)
+                if result is not None:
+                    return result
+            return None
+
+        result = find(self.tasks, False)
+        return task.done if result is None else result
 
     def delete(self, task: Task) -> None:
         def remove(tasks: list[Task]) -> bool:
