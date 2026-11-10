@@ -7,6 +7,7 @@ class TaskView:
     key: int
     text: str
     done: bool
+    children: tuple["TaskView", ...] = ()
 
 
 class TodoActions(Protocol):
@@ -15,7 +16,7 @@ class TodoActions(Protocol):
 
     def can_add(self, text: str) -> bool: ...
 
-    def add(self, text: str) -> bool: ...
+    def add(self, text: str, parent: int | None = None) -> bool: ...
 
     def delete(self, key: int) -> None: ...
 

@@ -25,6 +25,9 @@ class TodoApp(tk.Frame):
         self.done_font = font.Font(family=family, size=14, overstrike=True)
         self.small_font = font.Font(family=family, size=11)
         self.labels = []
+        self.actions = []
+        self.input_text = tk.StringVar(master=self)
+        self.input_text.trace_add("write", self.update_actions)
 
         # Self-drawn trashcan icon to not depend on support from the Font
         self.trash_icon = tk.PhotoImage(master=self, width=24, height=24)
@@ -58,7 +61,7 @@ class TodoApp(tk.Frame):
         entry_border = tk.Frame(composer, bg=CARD, highlightthickness=1,
                                 highlightbackground=BORDER)
         entry_border.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
-        self.entry = tk.Entry(entry_border, font=self.body_font, bg=CARD, fg=INK,
+        self.entry = tk.Entry(entry_border, textvariable=self.input_text, font=self.body_font, bg=CARD, fg=INK,
                               insertbackground=ACCENT, relief="flat", bd=0,
                               highlightthickness=0, selectbackground="#dcece3")
         self.entry.pack(fill="both", expand=True, padx=16, pady=16)
@@ -113,20 +116,45 @@ class TodoApp(tk.Frame):
 
     def resize_rows(self, event: tk.Event) -> None:
         self.canvas.itemconfigure(self.window, width=event.width)
-        for label in self.labels:
-            label.configure(wraplength=max(40, event.width - 92))
+        for label, depth in self.labels:
+            label.configure(wraplength=max(40, event.width - 150 - depth * 24))
 
-    def add_task(self, event: tk.Event | None = None) -> None:
-        if not self.commands.add(self.entry.get()):
+    def update_actions(self, *_args) -> None:
+        adding = self.commands.can_add(self.input_text.get())
+        for button in self.actions:
+            button.configure(
+                text="Add" if adding else "",
+                image="" if adding else self.trash_icon,
+                bg=ACCENT if adding else CARD,
+                fg=CARD if adding else MUTED,
+                activebackground="#265d47" if adding else CARD,
+                activeforeground=CARD if adding else INK,
+                highlightbackground=ACCENT if adding else CARD,
+                width=6 if adding else 0,
+            )
+
+    def add_task(self, event: tk.Event | None = None,
+                 parent: int | None = None) -> None:
+        if not self.commands.add(self.input_text.get(), parent):
             return
-        self.entry.delete(0, "end")
+        self.input_text.set("")
         self.render_tasks()
         self.entry.focus_set()
-        self.rows.update_idletasks()
-        self.canvas.yview_moveto(1)
+        if parent is None:
+            self.rows.update_idletasks()
+            self.canvas.yview_moveto(1)
+
+    def task_action(self, task: TaskView) -> None:
+        if self.commands.can_add(self.input_text.get()):
+            self.add_task(parent=task.key)
+        else:
+            self.commands.delete(task.key)
+            self.render_tasks()
+            self.entry.focus_set()
 
     def render_tasks(self) -> None:
         self.labels.clear()
+        self.actions.clear()
         for widget in self.rows.winfo_children():
             widget.destroy()
         tasks = self.commands.tasks
@@ -135,40 +163,40 @@ class TodoApp(tk.Frame):
         else:
             self.empty.place(relx=0.5, rely=0.35, anchor="center")
         for task in tasks:
-            self.render_task(task)
+            card = tk.Frame(self.rows, bg=CARD, padx=16, pady=16,
+                            highlightthickness=1, highlightbackground=BORDER)
+            card.pack(fill="x", pady=(0, 12))
+            self.render_task(card, task)
+        self.update_actions()
 
-    def render_task(self, task: TaskView) -> None:
-        row = tk.Frame(self.rows, bg=CARD, padx=16, pady=16,
-                       highlightthickness=1, highlightbackground=BORDER)
-        row.pack(fill="x", pady=(0, 12))
-        checked = tk.BooleanVar(master=self, value=task.done)
+    def render_task(self, card: tk.Frame, task: TaskView, depth: int = 0) -> None:
+        row = tk.Frame(card, bg=CARD)
+        row.pack(fill="x", padx=(depth * 24, 0), pady=(8 if depth else 0, 0))
+        done = task.done
+        checked = tk.BooleanVar(master=self, value=done)
         label = tk.Label(row, text=task.text, bg=CARD,
-                         fg=MUTED if task.done else INK,
-                         font=self.done_font if task.done else self.body_font,
+                         fg=MUTED if done else INK,
+                         font=self.done_font if done else self.body_font,
                          justify="left", anchor="w",
-                         wraplength=max(40, self.canvas.winfo_width() - 92))
+                         wraplength=max(40, self.canvas.winfo_width() - 150 - depth * 24))
 
         def set_done() -> None:
             self.commands.set_done(task.key, checked.get())
             self.render_tasks()
 
-        def delete_task() -> None:
-            self.commands.delete(task.key)
-            self.render_tasks()
-            self.entry.focus_set()
-
-        tk.Button(row, image=self.trash_icon, command=delete_task,
-                  font=self.body_font, bg=CARD, fg=MUTED,
-                  activebackground=CARD, activeforeground=INK,
-                  relief="flat", bd=0, cursor="hand2",
-                  highlightthickness=1, highlightbackground=CARD,
-                  highlightcolor=ACCENT, padx=6).pack(
-                      side="right", anchor="n", padx=(10, 0))
+        button = tk.Button(row, command=lambda: self.task_action(task),
+                           font=(self.body_font.actual("family"), 12, "bold"),
+                           relief="flat", bd=0, cursor="hand2",
+                           highlightthickness=1, highlightcolor=ACCENT, padx=6)
+        button.pack(side="right", anchor="n", padx=(10, 0))
+        self.actions.append(button)
         ttk.Checkbutton(row, variable=checked, command=set_done,
                         style="Task.TCheckbutton", cursor="hand2").pack(
                             side="left", anchor="n", padx=(0, 10), pady=2)
         label.pack(side="left", fill="x", expand=True)
-        self.labels.append(label)
+        self.labels.append((label, depth))
+        for child in task.children:
+            self.render_task(card, child, depth + 1)
 
     def scroll(self, event: tk.Event) -> None:
         if self.rows.winfo_height() <= self.canvas.winfo_height():
