@@ -1,0 +1,6 @@
+Diese Branch zeigt den Fehler einer KI-generierten Methode für das Speichern der Daten anhand zwei Tests in =tests/test_storage.py=
+Führe die tests aus mit
+#+begin_src bash
+  PYTHONPATH=src python -m unittest discover -s tests
+#+end_src
+und das Ergebnis sind =FAILED (failures=3)=
