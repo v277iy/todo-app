@@ -46,6 +46,20 @@ class TodoControllerTests(unittest.TestCase):
         self.assertEqual(parent.children, [])
         self.assertEqual(self.model.tasks, [parent])
 
+    def test_rename_preserves_task_state_and_children(self):
+        parent = self.model.add("Shopping")
+        child = self.model.add("Milk", parent)
+        parent.done = True
+
+        self.assertTrue(self.controller.rename(id(parent), "  Groceries  "))
+        self.assertEqual(parent.text, "Groceries")
+        self.assertTrue(parent.done)
+        self.assertIs(parent.children[0], child)
+        self.assertTrue(self.controller.rename(id(child), "Bread"))
+        self.assertEqual(child.text, "Bread")
+        self.assertFalse(self.controller.rename(id(child), "   "))
+        self.assertEqual(child.text, "Bread")
+
     def test_load_and_save_tasks(self):
         tasks = [Task("Read", done=True)]
         self.storage.load.return_value = tasks

@@ -44,6 +44,9 @@ class TodoController:
         task = None if parent is None else self._find(parent)
         return self.model.add(text, task) is not None
 
+    def rename(self, key: int, text: str) -> bool:
+        return self.model.rename(self._find(key), text)
+
     def delete(self, key: int) -> None:
         self.model.delete(self._find(key))
 

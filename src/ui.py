@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import font, messagebox, ttk
+from tkinter import font, messagebox, simpledialog, ttk
 
 from presentation import TaskView, TodoActions
 
@@ -162,6 +162,13 @@ class TodoApp(tk.Frame):
             self.render_tasks()
             self.entry.focus_set()
 
+    def edit_task(self, task: TaskView) -> None:
+        text = simpledialog.askstring(
+            "Edit task", "Task text:", initialvalue=task.text, parent=self,
+        )
+        if text is not None and self.commands.rename(task.key, text):
+            self.render_tasks()
+
     def render_tasks(self) -> None:
         self.labels.clear()
         self.actions.clear()
@@ -203,6 +210,7 @@ class TodoApp(tk.Frame):
         ttk.Checkbutton(row, variable=checked, command=set_done,
                         style="Task.TCheckbutton", cursor="hand2").pack(
                             side="left", anchor="n", padx=(0, 10), pady=2)
+        label.bind("<Double-Button-1>", lambda event: self.edit_task(task))
         label.pack(side="left", fill="x", expand=True)
         self.labels.append((label, depth))
         for child in task.children:

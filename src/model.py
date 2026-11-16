@@ -23,6 +23,12 @@ class TodoList:
         target.append(task)
         return task
 
+    def rename(self, task: Task, text: str) -> bool:
+        if not self.is_valid_text(text):
+            return False
+        task.text = text.strip()
+        return True
+
     def set_done(self, task: Task, done: bool) -> None:
         task.done = done
 

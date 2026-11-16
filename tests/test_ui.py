@@ -51,6 +51,30 @@ class TodoAppTests(unittest.TestCase):
         self.app.render_tasks.assert_called_once_with()
         self.app.add_task.assert_not_called()
 
+    @patch("ui.simpledialog.askstring", return_value="Bread")
+    def test_edit_task(self, askstring):
+        TodoApp.edit_task(self.app, TaskView(1, "Milk", False))
+
+        askstring.assert_called_once_with(
+            "Edit task", "Task text:", initialvalue="Milk", parent=self.app,
+        )
+        self.app.commands.rename.assert_called_once_with(1, "Bread")
+        self.app.render_tasks.assert_called_once_with()
+
+    @patch("ui.simpledialog.askstring", return_value=None)
+    def test_cancel_edit(self, askstring):
+        TodoApp.edit_task(self.app, TaskView(1, "Milk", False))
+
+        self.app.commands.rename.assert_not_called()
+        self.app.render_tasks.assert_not_called()
+
+    @patch("ui.simpledialog.askstring", return_value="   ")
+    def test_rejected_edit(self, askstring):
+        self.app.commands.rename.return_value = False
+        TodoApp.edit_task(self.app, TaskView(1, "Milk", False))
+
+        self.app.render_tasks.assert_not_called()
+
     def test_save_delegates_to_controller(self):
         TodoApp.save(self.app)
 
