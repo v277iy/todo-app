@@ -7,7 +7,7 @@ from unittest.mock import patch
 from model import Task
 from storage import TodoStorage, default_path
 
-
+# Selbst Implementiert nach überarbeiteter Spezifikation der Implementation
 class TodoStorageTests(unittest.TestCase):
     def setUp(self):
         directory = TemporaryDirectory()

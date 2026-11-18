@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 
+# KI-Entwurf für Klasse übernommen. Aufgaben werden als Dataclass modelliert.
+# Struktur passt zu meinen Anforderungen.
 @dataclass
 class Task:
     text: str
@@ -13,6 +15,8 @@ class TodoList:
 
     @staticmethod
     def is_valid_text(text: str) -> bool:
+        # Selbst Implementiert. Die Eingabe von Text muss mit `strip()`
+        # bereinigt werden. Reine Space Eingaben sind invalide.
         return bool(text.strip())
 
     def add(self, text: str, parent: Task | None = None) -> Task | None:
@@ -34,6 +38,8 @@ class TodoList:
 
     def is_done(self, task: Task) -> bool:
         """Completion includes ancestors without changing a task's own state."""
+        # KI-Entwurf angepasst. Unteraufgaben sind fertig wenn Oberaufgabe fertig ist.
+        # Unteraufgabe behalten ihren vorherigen Status bei Änderung der Oberaufgabe.
         def find(tasks: list[Task], inherited: bool) -> bool | None:
             for existing in tasks:
                 done = inherited or existing.done

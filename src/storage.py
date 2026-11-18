@@ -6,14 +6,14 @@ from tempfile import NamedTemporaryFile
 
 from model import Task
 
-
+# Speicherpfad manuell gewählt.
 def default_path() -> Path:
     config = Path(os.environ.get("XDG_CONFIG_HOME", ""))
     if not config.is_absolute():
         config = Path.home() / ".config"
     return config / "todo-app" / "tasks.json"
 
-
+# KI-Lösung übernommen nach überarbeitetem Prompt mit Spezifikation für Verhalten.
 class TodoStorage:
     def __init__(self, path: Path | None = None) -> None:
         self.path = default_path() if path is None else path

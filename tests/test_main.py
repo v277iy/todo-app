@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from main import main
 
-
+# Selbst Implementiert
 class MainTests(unittest.TestCase):
     @patch("main.TodoApp")
     @patch("main.TodoController")

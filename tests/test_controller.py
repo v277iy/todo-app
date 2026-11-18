@@ -8,7 +8,7 @@ from model import Task, TodoList
 from presentation import TaskView
 from storage import TodoStorage
 
-
+# Teilweise KI Implementiert
 class TodoControllerTests(unittest.TestCase):
     def setUp(self):
         self.model = TodoList()
@@ -30,6 +30,7 @@ class TodoControllerTests(unittest.TestCase):
         ))
 
     def test_blank_tasks_are_rejected(self):
+        # Selbst Implementiert
         self.assertFalse(self.controller.can_add("   "))
         self.assertFalse(self.controller.add("   "))
         self.assertEqual(self.controller.tasks, ())
@@ -61,6 +62,7 @@ class TodoControllerTests(unittest.TestCase):
         self.assertEqual(child.text, "Bread")
 
     def test_load_and_save_tasks(self):
+        # Selbst Implementiert
         tasks = [Task("Read", done=True)]
         self.storage.load.return_value = tasks
 
@@ -72,6 +74,7 @@ class TodoControllerTests(unittest.TestCase):
         self.storage.save.assert_called_once_with(tasks)
 
     def test_saving_empty_list_removes_previous_tasks(self):
+        # Nach Usecase Selbst Implementiert
         with TemporaryDirectory() as directory:
             controller = TodoController(
                 TodoList(), TodoStorage(Path(directory) / "tasks.json")

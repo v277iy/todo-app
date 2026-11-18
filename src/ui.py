@@ -11,7 +11,9 @@ MUTED = "#75827b"
 ACCENT = "#32765b"
 BORDER = "#dedfd7"
 
-
+# Layout und UI von KI implementiert anhand KI-generiertem UI-Entwurf.
+# Leichte Anpassungen an meine Wünsche. Texteingabe oben. Unteraufgabe hinzufügen
+# nur wenn Text in Texteingabe steht.
 class TodoApp(tk.Frame):
     def __init__(self, root: tk.Tk, commands: TodoActions) -> None:
         super().__init__(root, bg=BG, padx=36, pady=32)
@@ -29,7 +31,8 @@ class TodoApp(tk.Frame):
         self.input_text = tk.StringVar(master=self)
         self.input_text.trace_add("write", self.update_actions)
 
-        # Self-drawn trashcan icon to not depend on support from the Font
+        # KI-Vorschlag mit Mülltonnen-Schriftzeichen geändert wegen Fehlender
+        # Unterstützung meines Fonts. Von KI gemalt.
         self.trash_icon = tk.PhotoImage(master=self, width=24, height=24)
         for rectangle in (
             (9, 3, 15, 5),   # handle

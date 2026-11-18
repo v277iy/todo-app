@@ -3,6 +3,7 @@ from presentation import TaskView
 from storage import TodoStorage
 
 
+# Selbst Implementiert.
 class TodoController:
     def __init__(self, model: TodoList, storage: TodoStorage | None = None) -> None:
         self.model = model

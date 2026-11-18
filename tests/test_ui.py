@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 from presentation import TaskView
 from ui import TodoApp
 
-
+# KI Implementiert
 class TodoAppTests(unittest.TestCase):
     def setUp(self):
         # Exercise callbacks without creating a Tk window.
